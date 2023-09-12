@@ -1,0 +1,7 @@
+org\selenide\examples\steps\DashboardAdminPageSteps.class
+org\selenide\examples\methods\DashboardPage.class
+org\selenide\examples\methods\DashboardAdminPage.class
+org\selenide\examples\methods\LoginPage.class
+org\selenide\examples\AppTest.class
+org\selenide\examples\steps\LoginPageSteps.class
+org\selenide\examples\steps\DashboardSteps.class

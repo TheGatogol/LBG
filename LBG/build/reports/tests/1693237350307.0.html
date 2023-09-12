@@ -1,0 +1,748 @@
+<html dir="ltr" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" xmlns:schema="http://schema.org/" class="com" lang="en" geo="MX"><head>
+<script async="" src="https://si.education.investing.com/inv/imhb.js"></script><script src="https://cdn.pbxai.com/aba93a3a-0792-49b0-9740-2018808409c4.js" async=""></script>
+<link rel="dns-prefetch" href="https://i-invdn-com.investing.com">
+<link rel="dns-prefetch" href="https://a-invdn-com.investing.com">
+<link rel="preconnect" href="//si.education.investing.com">
+<link rel="dns-prefetch" href="//si.education.investing.com">
+<link rel="preconnect" href="//c.amazon-adsystem.com">
+<link rel="dns-prefetch" href="//c.amazon-adsystem.com">
+<script async="" src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"></script>
+<script>
+        // Load ToolSet hardcoded instead of from file
+        /**
+         * ToolSet (Investing Lib for DFP)
+         */
+        (()=>{
+            let lcl = console.log,
+                defineSlot = ({ defineSlot, sizes, adSlotDivID, middleDefinition, collapseDiv }, slotHolder) => {
+                    if (!slotHolder.slots) {
+                        slotHolder.slots = {};
+                    }
+                    if (collapseDiv && slot) {
+                        slot.setCollapseEmptyDiv(...collapseDiv);
+                    }
+                    if (middleDefinition && slot) {
+                        slot.defineSizeMapping(middleDefinition.reduce((acc, item) => acc.addSize(...item), window.googletag.sizeMapping()).build());
+                    }
+                                            if(!window.headerBidding) {
+                            slot.setTargeting('refresh_counter', '0');
+                        }
+                                        slotHolder.slots[defineSlot] = slot;
+
+                    window.googletag.pubads().addEventListener('slotRenderEnded',
+                        function(event) {
+                            var element = document.getElementById(event.slot.getSlotElementId());
+                            element.style.backgroundColor = null;
+                        });
+                },
+                displaySlot = (containerId) => {
+                    window.dfpSlots = window.dfpSlots || [];
+                    window.dfpSlotFlag = window.dfpSlotFlag || [];
+                    if(typeof window.dfpFlag !== 'undefined') {
+                        window.googletag.cmd.push(() => window.googletag.display(containerId))
+                    }
+                    else {
+                        window.dfpSlotFlag[containerId] = setInterval(() => {
+                            if( typeof window.dfpFlag !== 'undefined') {
+                                window.googletag.cmd.push(() => window.googletag.display(containerId))
+                                clearInterval(window.dfpSlotFlag[containerId]);
+                            }
+                        }, 50);
+                    }
+                };
+
+
+            window._ = {
+                ADVERTISEMENT_HEIGHT: 25,
+                MIN_AD_HEIGHT_CLOSE_BUTTON: 200,
+                each: (obj, iterator) => {
+                    if (typeof(obj) === 'object') {
+                        for (let key in obj) {
+                            iterator(obj[key], key);
+                        }
+                    } else {
+                        obj.forEach(iterator);
+                    }
+                },
+                setTargeting: (key, value) => {
+                    window.googletag.pubads().setTargeting(key, value);
+                },
+                defineSlotPB: (settings) => defineSlot(settings, window.pbjs), // Both of these methods must be called
+                defineSlot: (settings) => defineSlot(settings, window.googletag), // when globals are already available
+                displaySlot,
+                manageAd: (event) => {
+                    if(_.isShowAdvertisementPrefix(event)){
+                        _.showAdvertisementPrefix(event);
+                    }
+                    _.resizeContainer(event);
+                    if(_.isShowCloseButton(event)){
+                        _.showCloseElement(event);
+                    }
+                    if(event.slot.getSlotElementId() === 'div-gpt-ad-000000001-0' && !event.isEmpty){
+                        document.querySelector(".js-sticky-footer-close").classList.remove("displayNoneImp");
+                    }
+                    //TODO: we need to find a better solution (use adunits.phpparent attrs) for sepcific ads
+                    if (event.slot.getSlotElementId() === "div-gpt-ad-1541684394813-0") {
+                        let buySellDiv = document.querySelector('.overViewBox .buySellDiv');
+                        let hasVideoEl = document.querySelector('.overViewBox .has-video');
+                        if (event.isEmpty) {
+                            if(buySellDiv) {
+                                buySellDiv.classList.add("displayNone");
+                            }
+                            if(hasVideoEl) {
+                                hasVideoEl.classList.add('no-ad-loaded');
+                            }
+                        } else {
+                            if(buySellDiv) {
+                                buySellDiv.classList.remove('displayNone');
+                            }
+                            if(hasVideoEl) {
+                                hasVideoEl.classList.remove('no-ad-loaded');
+                            }
+                        }
+                    }
+                    //remove adFree sales popup if no DFP content
+                    if(event.slot.getSlotElementId() === 'dfpWrapper' && event.isEmpty){
+                        document.querySelector('#adFreeSalePopup').remove();
+                    }
+                },
+                showCloseElement: (event) => {
+                    document.getElementById(event.slot.getSlotElementId()).nextElementSibling.classList.remove('opacityNone');
+                },
+                showAdvertisementPrefix: (event) => {
+                    let dfpElement 			 = document.getElementById(event.slot.getSlotElementId());
+                    let advertisementDiv = _.createAdvertisementPrefix(dfpElement.getAttribute('advertisementText'));
+                    dfpElement.prepend(advertisementDiv);
+                },
+                createAdvertisementPrefix: (text) => {
+                    let advertisementDiv     		= document.createElement('div');
+                    let advertisementText 			= document.createElement('span');
+                    advertisementDiv.className 		= "advertisement-header";
+                    advertisementText.className 	= "text";
+                    advertisementText.textContent 	= text;
+                    advertisementDiv.append(advertisementText);
+                    return advertisementDiv;
+                },
+                resizeContainer: (event) => {
+                    if(event.isEmpty) {
+                        return;
+                    }
+                    let el = document.getElementById(event.slot.getSlotElementId());
+                    console.log('full event');
+                    console.log(JSON.stringify(event));
+					if(event.slot.getSlotElementId().includes("Billboard_Default")) {
+						return;
+					}
+                    if(!event.isEmpty && parseInt(el.getAttribute('resize'))){
+                        let advertisementHeight = 0;
+                        if (_.isShowAdvertisementPrefix(event)) {
+                            el.querySelector('.advertisement-header').style.width = event.size[0];
+                            advertisementHeight = _.ADVERTISEMENT_HEIGHT;
+                        }
+
+                        // Sometimes, prebid send us size of [1,1] for the billboard, so we get the height of the banner manually from the div generated from the child (google div).
+                        let billboardPrebidException = (event.slot.getSlotElementId().includes("Billboard_Default") && event.size[1] === 1 && el.childNodes[3].clientHeight > 1);
+                        if(billboardPrebidException && el.style.height === "276px") { // if we got the bug but, we have the big base size, we stay like this.
+                            console.log('bug of prebid is suppose to happen NOW')
+                            return;
+                        }
+                        let newHeight = (billboardPrebidException) ? el.childNodes[3].clientHeight : event.size[1];
+                        console.log('NEW HEIGHT');
+                        console.log(event.size[1] === 1 && billboardPrebidException);
+                        console.log('new size: '+ newHeight);
+                        el.style.height = newHeight + advertisementHeight + 1 + 'px';
+                        if (hasSomeParentTheClass(el, 'wideTopBanner')) {
+                            let parents = document.querySelectorAll('.midHeader .wideTopBanner');
+                            let parents_array = [...parents]; // convert to array
+                            parents_array.forEach(div => {div.style.height = 'auto';});
+                        }
+                    }
+                },
+                isFu: obj => typeof(obj) === 'function',
+                attachEvents: () => {
+                    window.googletag.pubads().addEventListener('slotRenderEnded', (event) => {_.manageAd(event)});
+                    let el = document.querySelector('.dfpCloseBtn');
+                    if(el !== null) {
+                        el.addEventListener('click', (event) => {
+                            $(event.target).parent().hide();
+                        });
+                    }
+
+                    let stickyEl = document.querySelector('.js-sticky-footer-close');
+                    if(stickyEl !== null) {
+                        stickyEl.addEventListener('click', (event) => {document.getElementById('sticky_footer').remove();});
+                    }
+                },
+                isShowCloseButton: event => {
+
+                    return !event.isEmpty && parseInt(document.getElementById(event.slot.getSlotElementId()).getAttribute('closeButton')) &&
+                        event.size != null && event.size.length > 1 && event.size[1] >= _.MIN_AD_HEIGHT_CLOSE_BUTTON;
+                },
+                isShowAdvertisementPrefix: event => {
+
+                    let advertisementText = document.getElementById(event.slot.getSlotElementId()).getAttribute('advertisementText');
+                    return !event.isEmpty && (typeof advertisementText !== typeof undefined && advertisementText);
+                },
+            }
+
+            window.getCookie = function (cname) {
+                var name = cname + "=";
+                var ca=document.cookie.split(";");
+                for (var i=0; i<ca.length; i++) {
+                    var c = ca[i];
+                    while (c.charAt(0)==' ') c = c.substring(1);
+                    if (c.indexOf(name) == 0) return c.substring(name.length, c.length);
+                }
+                return "";
+            }
+            window.hasSomeParentTheClass = function (element, classname) {
+                if (element.className.split(' ').indexOf(classname)>=0) return true;
+                return element.parentNode && hasSomeParentTheClass(element.parentNode, classname);
+            }
+        })();
+    </script>
+<script type="text/javascript">
+    function OptanonWrapper() { }
+
+    // temp for checks
+    </script>
+<style>
+	.ot-floating-button {
+		z-index:12 !important;
+	}
+</style>
+<script type="text/javascript">
+        window.helpers = {
+            'getCookie': function (k){var v="; "+document.cookie;var p=v.split("; "+k+"=");if(p.length===2)return p.pop().split(";").shift();else return null},
+            'setCookie': function (k,v,d){var e='';if(typeof d!=='undefined'){var n=new Date;n.setTime(n.getTime()+864e5*d);e+=';expires="';e+=n.toGMTString();e+='"';}document.cookie=k+'='+v+';path=/' + e},
+            'delCookie': function (k){document.cookie=k+'=;path=/;expires=-1'},
+            'isNumber': function (n){return !isNaN(n)&&typeof n!==undefined&&n!==null&&n!==''},
+            'removeClass': function (e,c){if(document.documentElement.classList){e.classList.remove(c);}else{var r=new RegExp('(^|\\s)'+c+'(\\s|$)', 'g');e.className=e.className.replace(r, c)}},
+            'addClass': function (e,c){if(document.documentElement.classList){e.classList.add(c);}else{if(e.className.indexOf(c)<0){if((e.className!==''&&e.className.charAt[e.className.length-1]===' ')||e.className===''){e.className+=c}else{e.className+=' '+c}}}},
+            'hasClass': function (e,c){if(document.documentElement.classList){e.classList.contains(c);}else{return e.className.indexOf(c)>=0}},
+        };
+    </script>
+<script>
+    
+    function loadJsScript(url){
+        let jsScript = document.createElement( 'script' );
+        jsScript.async = true;
+        jsScript.src = url;
+
+        document.head.appendChild(jsScript);
+    }
+
+    var allKeyValue = {"Section":"equities","Sub_Section":"","Charts_Page":"no","Page_URL":"\/equities\/gmexico-transportes-chart","Domain":"www.investing.com","smd":"78ac497d59e70f7db9b63fd69e88e372-1693237327","tnb_position":"b","protected_media":"0","pm":"clear","Crypto_Instrument":"No","user_has_watchlist":"0","session_number":"1","page_path":"www.investing.com\/equities\/gmexico-transportes-chart","page_path_level1":"Equities","page_path_level2":"Equities Overview","pair_id":"1055998","udid":"78ac497d59e70f7db9b63fd69e88e372","edition_id":"1","Traffic_Type":"OG","redesign":"0","SectionInstrument":"GMexico_Transportes","SectionInstrument_Ticker":"GMXT","User_type":"Not_Logged_in"};
+    var hb_variant  = "";
+    window.isGDPR   = 0;
+    window.isCCPA 	= 0;
+    window.adFox 	= 0;
+    window.headerBidding = 1;
+    if(window.headerBidding === 1 && parseInt(hb_variant) !== 1) {
+        loadJsScript("https://si.education.investing.com/inv/prebid.js");
+    }
+    if (window.adFox === 1) { // loading AdFox (Yandex AdServer)
+        var adServerLibrary = "https://yandex.ru/ads/system/context.js";
+        var adServerUsed = "AdFox";
+        window.yaContextCb = window.yaContextCb || []
+    }
+    else { // loading GPT
+        var adServerLibrary = "https://securepubads.g.doubleclick.net/tag/js/gpt.js"
+        var adServerUsed = "GPT";
+    }
+    var loadAds = false;
+    const loadGpt = () => {
+        loadAds = true;
+		let gptScript = document.createElement( 'script' );
+		gptScript.onload = function () {
+			console.log(adServerUsed +  ' loaded');
+		};
+		gptScript.async = true;
+		gptScript.src = adServerLibrary;
+
+        // Load GPT Async
+        if(adServerUsed !== "GPT") { // Load AdFox / Yandex
+		    document.head.appendChild(gptScript);
+        }
+        else { // suppose to load GPT
+            window.dfpSlots = window.dfpSlots || [];
+            window.googletag = window.googletag || {};
+            window.googletag.cmd = window.googletag.cmd || [];
+
+            window.a892ffe2982c = {
+                defineSlots: function () {
+                    _.attachEvents();
+                    _.each( allKeyValue, function (val, key) { _.setTargeting(key, val) });
+                    _.each([], _.defineSlot);
+                }
+            }
+            window.googletag.cmd.push(function () {
+
+                window.a892ffe2982c.defineSlots();
+                //if is not gdpr compliant - get personal ads
+                if (!window.isGDPR || (window.isGDPR && getCookie('CMP_CONSENT') === '1')) {
+                    window.googletag.pubads().setRequestNonPersonalizedAds(0);
+                }
+
+                // ADX ccpa (optout - 1YYN) restricted data processing
+                if( window.isCCPA && getCookie('usprivacy') === '1YYN')
+                {
+                    console.log('CCPA privacy restrict data processing');
+                    window.googletag.pubads().setPrivacySettings({
+                        'restrictDataProcessing': true
+                    });
+                }
+
+                window.googletag.pubads().enableSingleRequest();
+                window.googletag.enableServices();
+
+                // Display slots after user consent.
+                // for (let i = 0; i < window.dfpSlots.length; i++) {
+                //     console.log('manual loop ' + window.dfpSlots[i]);
+                //     window.googletag.display(window.dfpSlots[i]);
+                // }
+                window.dfpFlag = 1;
+            })
+            window.dataLayer = window.dataLayer || [];
+            if(hb_variant !== '') {
+                gtag("js", new Date());
+                gtag("set", { experiments: [{ id: 'Bwkq3mMOQrO-69JcGkgcbA', variant: hb_variant }] });
+                gtag("config", "UA-2555300-55");
+                function gtag() {
+                    dataLayer.push(arguments)
+                }
+            }
+            if(parseInt(hb_variant) === 1) {
+                window.imntz_analyticsTargetCpmEnabled = true;
+                (function(w, d, e, u, p, a, m) {
+                    w.__imntz = w.__imntz || {};
+                    w.__imntz.queue = w.__imntz.queue || [];
+                    w.__imntz.presetUrl = p;
+
+                    a = d.createElement(e);
+                    m = d.getElementsByTagName('script')[0];
+                    a.async = true;
+                    a.src = u;
+                    m.parentNode.insertBefore(a, m);
+
+                    window.__imntz.queue.push(() => {
+                        window.__imntz.api().setTargeting(allKeyValue);
+                    });
+
+                    window.__imntz.queue.push(() => {
+                        window.__imntz.api().registerGoogleHook('slotRenderEnded', (adUnit, args) => {
+                            var element = document.getElementById(args.slot.getSlotElementId());
+                            element.style.backgroundColor = null;
+
+                        });
+                    });
+                })(window, document, 'script', 'https://monetization.prod.invmed.co/bootstrap/bootstrap.min.js', 'https://si.education.investing.com/inv/v2/us/config-desktop.leg.json');
+            } else if(window.headerBidding === 1) {
+                loadJsScript("https://c.amazon-adsystem.com/aax2/apstag.js");
+                (function (w, d, e, u, p, a, m) {
+                    w['imhb'] = w['imhb'] || {};
+                    w['imhb'].queue = w['imhb'].queue || [];
+                    w['imhb'].preset = p;
+                    a = d.createElement(e);
+                    m = d.getElementsByTagName('script')[0];
+                    a.async = 1;
+                    a.src = u;
+                    m.parentNode.insertBefore(a, m);
+
+                    // config here
+                    w['imhb'].queue.push(function () {
+                        w['imhb'].loadConfig({
+                            page: {
+                                pagination: {
+                                    current: 1,
+                                    total: 1
+                                }
+                            }
+                        });
+
+                        w['imhb'].setTargeting(allKeyValue);
+                        w['imhb'].gptEventListener('slotRenderEnded', function(event) {
+                            var element = document.getElementById(event.slot.getSlotElementId());
+                            element.style.backgroundColor = null;
+                        });
+                    });
+
+
+                })(window, document, 'script', 'https://si.education.investing.com/inv/imhb.js', 'https://si.education.investing.com/inv/us/config-desktop.leg.json');
+            }
+        }
+    }
+
+    if( window.isGDPR ){
+        const consentSetInterval = setInterval(() => {
+            if( typeof window.__tcfapi !== 'undefined' )
+            {
+                clearInterval(consentSetInterval);
+                window.__tcfapi( 'addEventListener', 2, function( tcData,listenerSuccess )
+                {
+					if(listenerSuccess) {
+						if( tcData && (tcData.eventStatus === 'tcloaded' || tcData.eventStatus === 'useractioncomplete') ) {
+							var hasGoogleAdvertisingProductsConsent = tcData.vendor.consents[755] || false;
+							// Check if the user gave Google Advertising Products consent (iab vendor 755)
+							if(hasGoogleAdvertisingProductsConsent) {
+								console.log("gpt loaded gdpr-ccpa")
+								loadGpt();
+							}
+						}
+                        if (window.imhb) {
+                            window.imhb.queue.push(() => {
+                                window.imhb.recheckConsent(); // Check for GDPR
+                            });
+                        }
+					}
+                })
+            }
+
+        }, 50);
+
+    } else {
+        if (window.isCCPA && window.imhb) {
+            window.addEventListener("consent.onetrust", () => {
+                // should update cookie usprivacy
+
+                __uspapi("getUSPData", 1, (data, success) => {
+                    if (window.imhb) {
+                        window.imhb.recheckCCPAConsent();
+                    }
+                });
+            });
+        }
+        loadGpt();
+    }
+
+    var adFoxSlots = adFoxSlots || [];
+    function loadAdFoxSlot(slot, params) {
+        adFoxSlots[slot] = { ...window.adFoxObj }
+        adFoxSlots[slot].containerId = slot;
+        adFoxSlots[slot].params = params;
+        adFoxSlots[slot].onLoad = (function (){setWhiteBackground(slot)})
+        if(slot === 'FP_RU_Sideblock_3_viewable' || slot === 'Sideblock_2_Default') {
+            adFoxSlots[slot].lazyLoad = true;
+        }
+        console.log('loading ad Fox slot by func for slot '+slot)
+        window.yaContextCb.push(()=>{Ya.adfoxCode.create(adFoxSlots[slot])})
+
+    }
+    
+    let upacc = getCookie('upa');
+    if(upacc !== null) {
+        try{
+            let upadec = JSON.parse(atob(decodeURIComponent(upacc)));
+            allKeyValue = Object.assign(allKeyValue, upadec);
+        } catch (e) { }
+    }
+      
+    window.adFoxObj = {
+        ownerId: 316703,
+        // containerId: 'FP_RU_Billboard_Default',
+        params: {},
+        onLoad: function(data) { console.log('on adFox Load'); console.log(data) },
+        onRender: function() {console.log('on adFox render');   },
+        onError: function(error) { console.log('on adFox error'); console.log(error)  }
+    };
+
+    function setWhiteBackground(slotId)
+    {
+        let el = document.getElementById(slotId);
+        if(el) {
+            el.style.backgroundColor = 'white';
+        }
+    }
+
+    function convertKeyValueToYandex(allKeyValue) {
+        var KeyValueMapper = {
+            puid1: "CID",
+            puid2: "User_type",
+            puid3: "smd",
+            puid4: "Traffic_Type",
+            puid5: "Section",
+            puid6: "adsTest",
+            puid7: "utm_source",
+            puid8: "utm_campaign",
+            puid9: "utm_medium",
+            puid10: "utm_term",
+            puid11: "utm_content",
+            puid12: "pair_id",
+            puid13: "newsID",
+            puid14: "contentID",
+            puid15: "GL_Ad_ID",
+            puid16: "GL_Campaign_ID",
+            puid17: "Crypto_Instrument",
+            puid18: "Sub_Section",
+            puid19: "SectionInstrument",
+            puid20: "User_Id",
+            puid21: "udid",
+            puid22: "edition_id",
+            puid23: "reg_days",
+            puid24: "already_l",
+            puid25: "b1",
+            puid26: "b2",
+            puid27: "b3",
+            puid28: "b4",
+            puid29: "pm",
+            puid30: "user_has_watchlist",
+            puid31: "studios_dfp"
+        };
+        allPuids = {};
+        for (const key in KeyValueMapper) {
+            if(allKeyValue.hasOwnProperty(KeyValueMapper[key])) {
+                allPuids[key] = allKeyValue[KeyValueMapper[key]]
+            }
+        }
+        return allPuids;
+    }
+    var allPuids = convertKeyValueToYandex(allKeyValue)
+
+    // Update adFox Obj with Puids
+    Object.assign(adFoxObj.params, allPuids);
+
+    // Load Yandex ads refresher
+    var thisWindow = window;
+    var IDLE_INTERVAL = 5 * 60 * 1000; // 5 minutes
+    thisWindow.lastUserRefreshTimestamp = Date.now()
+    if(window.adFox === 1) {
+        thisWindow.addEventListener("focus", function(){
+            refreshAdFoxAds();
+        })
+    }
+
+    function refreshAdFoxAds(){
+        var currentTime = Date.now();
+        if(currentTime >= thisWindow.lastUserRefreshTimestamp + IDLE_INTERVAL) {
+            console.log("Refreshing only viewable Ad Fox ads");
+            Ya.adfoxCode.reload(null, {onlyIfWasVisible: true});
+        }
+        else {
+            // console.log("not yet")
+        }
+        thisWindow.lastUserRefreshTimestamp = Date.now()
+    }
+
+    var googletagGA = window.helpers.getCookie('_ga');
+
+    if (googletagGA) {
+        allKeyValue.CID = googletagGA.substr(6);
+    }
+
+    // todo: change the screen width logic and move it from here to separate task
+    var screenWidthForAds= screen.width || 1366,
+        screenWidthValue,
+        adBreakPoints = [1336,1440,1920];
+
+    if (screenWidthForAds < adBreakPoints[0]){ screenWidthValue = 'small' }
+    else if (screenWidthForAds >= adBreakPoints[0] && screenWidthForAds <= adBreakPoints[1]) {
+        screenWidthValue = 'medium'
+    }
+    else if (screenWidthForAds > adBreakPoints[1]) {
+        screenWidthValue = 'big'
+    }
+
+    allKeyValue.screen_width = screenWidthValue;
+</script><script async="" src="https://si.education.investing.com/inv/prebid.js"></script><script async="" src="https://c.amazon-adsystem.com/aax2/apstag.js"></script>
+<script type="text/javascript">
+    const urlParams = new Proxy(new URLSearchParams(window.location.search), {
+        get: (searchParams, prop) => searchParams.get(prop),
+    });
+    // Get the value of "some_key" in eg "https://example.com/?some_key=some_value"
+    startTnbTracking = function() {
+        if( window.$ ) {
+            window.googletag = window.googletag || {};
+            var googleTagLoaded = setInterval((function () {
+                if (window.googletag && googletag.pubadsReady) {
+                    //Listen to slotRenderEnded to enable billboard closing functionality
+                    window.googletag.pubads().addEventListener("slotRenderEnded", function (event) {
+                        if(event.slot.getSlotElementId().toUpperCase().indexOf("TNB") !== -1) {
+                            sessionStorage.setItem(event.slot.getSlotElementId(), JSON.stringify(event.lineItemId));
+                        }
+                    });
+                    clearInterval(googleTagLoaded);
+                }
+            }), 50);
+            $(window).blur(function(e){
+                if(
+                    document.activeElement
+                    && document.activeElement.tagName == 'IFRAME'
+                    && document.activeElement.id.indexOf("google") !== -1
+                    && document.activeElement.id.toUpperCase().indexOf("TNB") !== -1
+                ){
+                    var lineItemId = sessionStorage.getItem(document?.activeElement?.parentElement?.parentElement.id);
+                    $(window).focus();
+                    var iframeId = document?.activeElement?.id;
+                    // remove 'google_ads_iframe_' from the beginning and '_0' from the end
+                    var adUnitPath = iframeId?.slice(18, iframeId?.length - 2);
+
+                    var obj = {
+                        event_name_cd:         "click_on_tnb_button",
+                        GA_event_category:     "Trade Now Button",
+                        GA_event_action:       "tnb button clicked",
+                        GA_event_label:        lineItemId + "-" + adUnitPath,
+                        action_cd:             "click",
+                        object:                "button",
+                        event_cd_description1: "last paid source",
+                        event_cd_value1:       getCookie('lastPaidSource'),
+                        event_cd_description2: "click id",
+                        event_cd_value2:       getCookie('lastPaidSourceClickId'),
+                        event_cd_description3: "campaign id",
+                        event_cd_value3:       getCookie('lastPaidSourceCampaignId')
+                    }
+                    addGtmToGAEvent(obj);
+                }
+            });
+            getClickId = function () {
+                if (!!urlParams.gclid) {
+                    return urlParams.gclid;
+                }
+                if (!!urlParams.msclkid) {
+                    return urlParams.msclkid;
+                }
+                if (!!urlParams.fbclid) {
+                    return urlParams.fbclid;
+                }
+                if (!!urlParams.click_id) {
+                    return urlParams.click_id;
+                }
+            }
+            setLastPaidSourceCookies = function () {
+                if (!!getClickId() && !!urlParams.utm_source) {
+
+                    setCookie('lastPaidSource', urlParams.utm_source, 30, '/', '.investing.com');
+                    setCookie('lastPaidSourceClickId', getClickId(), 30, '/', '.investing.com');
+                    setCookie('lastPaidSourceCampaignId', urlParams.utm_campaign, 30, '/', '.investing.com');
+                }
+            }
+            $(function(){
+                setLastPaidSourceCookies();
+            });
+        } else {
+            window.setTimeout( startTnbTracking, 50 );
+        }
+    }
+    startTnbTracking();
+</script>
+<script src="https://i-invdn-com.investing.com/js/protectedMedia.js"></script><meta http-equiv="origin-trial" content="A7CQXglZzTrThjGTBEn1rWTxHOEtkWivwzgea+NjyardrwlieSjVuyG44PkYgIPGs8Q9svD8sF3Yedn0BBBjXAkAAACFeyJvcmlnaW4iOiJodHRwczovL2RvdWJsZWNsaWNrLm5ldDo0NDMiLCJmZWF0dXJlIjoiUHJpdmFjeVNhbmRib3hBZHNBUElzIiwiZXhwaXJ5IjoxNjk1MTY3OTk5LCJpc1N1YmRvbWFpbiI6dHJ1ZSwiaXNUaGlyZFBhcnR5Ijp0cnVlfQ=="><meta http-equiv="origin-trial" content="A3vKT9yxRPjmXN3DpIiz58f5JykcWHjUo/W7hvmtjgh9jPpQgem9VbADiNovG8NkO6mRmk70Kex8/KUqAYWVWAEAAACLeyJvcmlnaW4iOiJodHRwczovL2dvb2dsZXN5bmRpY2F0aW9uLmNvbTo0NDMiLCJmZWF0dXJlIjoiUHJpdmFjeVNhbmRib3hBZHNBUElzIiwiZXhwaXJ5IjoxNjk1MTY3OTk5LCJpc1N1YmRvbWFpbiI6dHJ1ZSwiaXNUaGlyZFBhcnR5Ijp0cnVlfQ=="><meta http-equiv="origin-trial" content="A4A26Ymj79UVY7C7JGUS4BG1s7MdcDokAQf/RP0paks+RoTYbXHxceT/5L4iKcsleFCngi75YfNRGW2+SpVv1ggAAACLeyJvcmlnaW4iOiJodHRwczovL2dvb2dsZXRhZ3NlcnZpY2VzLmNvbTo0NDMiLCJmZWF0dXJlIjoiUHJpdmFjeVNhbmRib3hBZHNBUElzIiwiZXhwaXJ5IjoxNjk1MTY3OTk5LCJpc1N1YmRvbWFpbiI6dHJ1ZSwiaXNUaGlyZFBhcnR5Ijp0cnVlfQ=="><meta http-equiv="origin-trial" content="As0hBNJ8h++fNYlkq8cTye2qDLyom8NddByiVytXGGD0YVE+2CEuTCpqXMDxdhOMILKoaiaYifwEvCRlJ/9GcQ8AAAB8eyJvcmlnaW4iOiJodHRwczovL2RvdWJsZWNsaWNrLm5ldDo0NDMiLCJmZWF0dXJlIjoiV2ViVmlld1hSZXF1ZXN0ZWRXaXRoRGVwcmVjYXRpb24iLCJleHBpcnkiOjE3MTk1MzI3OTksImlzU3ViZG9tYWluIjp0cnVlfQ=="><meta http-equiv="origin-trial" content="AgRYsXo24ypxC89CJanC+JgEmraCCBebKl8ZmG7Tj5oJNx0cmH0NtNRZs3NB5ubhpbX/bIt7l2zJOSyO64NGmwMAAACCeyJvcmlnaW4iOiJodHRwczovL2dvb2dsZXN5bmRpY2F0aW9uLmNvbTo0NDMiLCJmZWF0dXJlIjoiV2ViVmlld1hSZXF1ZXN0ZWRXaXRoRGVwcmVjYXRpb24iLCJleHBpcnkiOjE3MTk1MzI3OTksImlzU3ViZG9tYWluIjp0cnVlfQ=="><script src="https://securepubads.g.doubleclick.net/pagead/managed/js/gpt/m202308230101/pubads_impl.js?cb=31077384" async=""></script>
+<title>GMexico Transportes SA de CV Interactive Stock Chart (GMXT) - Investing.com</title>
+<script>
+
+/**
+ * Protected Media Score politics:
+ * 1. fraudScore means: fraud [2 - clean - 100 fraud]
+ * 2. suspScore means: suspicious [2 - clean - 100 suspicious]
+ * 3. se means means: load by search engine or ad crawler (for Google Publishers recommended to not block this
+ * so Google can score your page for quality
+ *
+ * JIRA: ADTECH-625
+ */
+const PM_COOKIE_NAME       = "protectedMedia";
+const PM_SCORE_COOKIE_NAME = "pms";
+const protectedMediaCookie = getCookie(PM_COOKIE_NAME);
+const pmScoreCookie        = getCookie(PM_SCORE_COOKIE_NAME);
+window.fraud = 0;
+if(protectedMediaCookie === "" || pmScoreCookie === "") { // only hit once per user
+	PMScore({
+			callback: function(result) {
+		if(result.status.indexOf("timeout") !== -1) {
+			console.log("timeout: " + JSON.stringify(result));
+		}
+		else { // success PM call
+			if(result.status.indexOf("se") !== -1 && result.se !== 0) {
+				// Load by Search engine or ad crawler (for Google Publishers, recommended to not block this so Google
+				// can score your page for quality
+				console.log("google bot / ad crawler detected");
+				return;
+			}
+			// mark the PM score to user (first time)
+            if(protectedMediaCookie === "") {
+                setCookie(PM_COOKIE_NAME, result.fraudScore ,365, "/");
+            }
+            if(pmScoreCookie === "") {
+                setCookie(PM_SCORE_COOKIE_NAME, JSON.stringify({'f':result.fraudScore, 's':result.suspScore}),30, "/");
+            }
+
+			if (result.fraudScore > 70) { // result.suspScore > 70
+				console.log("fraud: " + JSON.stringify(result));
+			}
+			else {
+				console.log("clean: " + JSON.stringify(result));
+			}
+		}
+	},
+			mode: "rt",
+			timeout: 4000,
+		})
+	}
+else { // user or bot already tagged by protected media (used for second load only)
+	if(protectedMediaCookie > 70) {
+		window.fraud = 1;
+	}
+}
+</script>
+<link rel="canonical" href="https://www.investing.com/equities/gmexico-transportes-chart">
+<link rel="alternate" hreflang="x-default" href="https://www.investing.com/equities/gmexico-transportes-chart">
+<link rel="alternate" hreflang="en-us" href="https://www.investing.com/equities/gmexico-transportes-chart">
+<link rel="alternate" hreflang="he-il" href="https://il.investing.com/equities/gmexico-transportes-chart">
+<link rel="alternate" hreflang="ar" href="https://sa.investing.com/equities/gmexico-transportes-chart">
+<link rel="alternate" hreflang="es" href="https://es.investing.com/equities/gmexico-transportes-chart">
+<link rel="alternate" hreflang="fr" href="https://fr.investing.com/equities/gmexico-transportes-chart">
+<link rel="alternate" hreflang="zh-cn" href="https://cn.investing.com/equities/gmexico-transportes-chart">
+<link rel="alternate" hreflang="ru" href="https://ru.investing.com/equities/gmexico-transportes-chart">
+<link rel="alternate" hreflang="de" href="https://de.investing.com/equities/gmexico-transportes-chart">
+<link rel="alternate" hreflang="it" href="https://it.investing.com/equities/gmexico-transportes-chart">
+<link rel="alternate" hreflang="tr-tr" href="https://tr.investing.com/equities/gmexico-transportes-chart">
+<link rel="alternate" hreflang="ja-jp" href="https://jp.investing.com/equities/gmexico-transportes-chart">
+<link rel="alternate" hreflang="pt" href="https://br.investing.com/equities/gmexico-transportes-chart">
+<link rel="alternate" hreflang="sv-se" href="https://se.investing.com/equities/gmexico-transportes-chart">
+<link rel="alternate" hreflang="el-gr" href="https://gr.investing.com/equities/gmexico-transportes-chart">
+<link rel="alternate" hreflang="pl-pl" href="https://pl.investing.com/equities/gmexico-transportes-chart">
+<link rel="alternate" hreflang="nl" href="https://nl.investing.com/equities/gmexico-transportes-chart">
+<link rel="alternate" hreflang="fi-fi" href="https://fi.investing.com/equities/gmexico-transportes-chart">
+<link rel="alternate" hreflang="ko-kr" href="https://kr.investing.com/equities/gmexico-transportes-chart">
+<link rel="alternate" hreflang="es-mx" href="https://mx.investing.com/equities/gmexico-transportes-chart">
+<link rel="alternate" hreflang="pt-pt" href="https://pt.investing.com/equities/gmexico-transportes-chart">
+<link rel="alternate" hreflang="en-gb" href="https://uk.investing.com/equities/gmexico-transportes-chart">
+<link rel="alternate" hreflang="vi-vn" href="https://vn.investing.com/equities/gmexico-transportes-chart">
+<link rel="alternate" hreflang="th-th" href="https://th.investing.com/equities/gmexico-transportes-chart">
+<link rel="alternate" hreflang="id-id" href="https://id.investing.com/equities/gmexico-transportes-chart">
+<link rel="alternate" hreflang="zh-hk" href="https://hk.investing.com/equities/gmexico-transportes-chart">
+<link rel="alternate" hreflang="en-in" href="https://in.investing.com/equities/gmexico-transportes-chart">
+<link rel="alternate" hreflang="ms-my" href="https://ms.investing.com/equities/gmexico-transportes-chart">
+<link rel="alternate" hreflang="en-ca" href="https://ca.investing.com/equities/gmexico-transportes-chart">
+<link rel="alternate" hreflang="en-au" href="https://au.investing.com/equities/gmexico-transportes-chart">
+<link rel="alternate" hreflang="en-za" href="https://za.investing.com/equities/gmexico-transportes-chart">
+<link rel="alternate" hreflang="hi-in" href="https://hi.investing.com/equities/gmexico-transportes-chart">
+<link rel="alternate" hreflang="en-ng" href="https://ng.investing.com/equities/gmexico-transportes-chart">
+<link rel="alternate" hreflang="en-ph" href="https://ph.investing.com/equities/gmexico-transportes-chart">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:site" content="@investingcom">
+<meta name="twitter:title" content="GMexico Transportes SA de CV Interactive Stock Chart (GMXT) - Investing.com">
+<meta name="twitter:description" content="Access our live streaming chart for the GMexico Transportes SA de CV stock, free of charge.">
+<meta name="twitter:image" content="https://i-invdn-com.investing.com/redesign/images/seo/investing_300X300.png">
+<meta property="og:title" content="GMexico Transportes SA de CV Interactive Stock Chart (GMXT) - Investing.com">
+<meta property="og:description" content="Access our live streaming chart for the GMexico Transportes SA de CV stock, free of charge.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.investing.com/equities/gmexico-transportes-chart">
+<meta property="og:image" content="https://i-invdn-com.investing.com/redesign/images/seo/investing_300X300.png">
+<meta property="og:site_name" content="Investing.com">
+<meta property="og:locale" content="en_US">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<link rel="shortcut icon" href="https://i-invdn-com.investing.com/logos/favicon.ico">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta http-equiv="content-language" content="en-us">
+<link rel="alternate" media="only screen and (max-width: 640px)" href="https://m.investing.com/equities/gmexico-transportes-chart"> <meta name="description" content="Access our live streaming chart for the GMexico Transportes SA de CV stock, free of charge.">
+<meta http-equiv="pragma" content="no-cache">
+<meta name="baidu_ssp_verify" content="867e13c8aeefe44c96c098634fb27ffe"><link rel="alternate" href="android-app://com.fusionmedia.investing/app/investing.com/quotes/1055998/61"> <meta name="google-site-verification" content="DTRxWXB3vjNUsTCPICWo9yzZmIllylXYkRevEXo7szg">
+
+<link rel="stylesheet" href="https://i-invdn-com.investing.com/css/mainOldMin_v3b.css" type="text/css">
+<link rel="stylesheet" href="https://i-invdn-com.investing.com/css/newMainCssMin_v80h.css" type="text/css">
+<link href="https://i-invdn-com.investing.com/css/printContent_v10.css" media="print" rel="stylesheet" type="text/css">
+
+
+<script type="text/javascript">
+        var domainId = "1";
+        window.CDN_URL = "https://i-invdn-com.investing.com";
+    </script></head></html>
